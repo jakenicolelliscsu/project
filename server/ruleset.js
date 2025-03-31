@@ -1,5 +1,5 @@
 module.exports = {
-    Ruleset, Width, Height, SetBounds, TileType, SetTileType, SetRuleMatrixSize, SetRule, TileVisible
+    Ruleset, Width, Height, SetBounds, TileType, SetTileType, SetRuleMatrixSize, SetPlayerTypeRule, SetPlayerType, PlayerTypeMaxUsers, PlayerTypeCanMove, PlayerTypeCanSee
 }
 
 function Ruleset()
@@ -53,12 +53,27 @@ function SetRuleMatrixSize(rs, playertype_count, tiletype_count)
         rs.rules[i] = {};
         rs.rules[i].tiletypes = [];
         rs.rules[i].tiletypes.length = tiletype_count;
+        rs.rules[i].maxusers = 0;
     }
 }
 
-function SetRule(rs, 
+function SetPlayerType(rs,
+    /*int*/playertype,
+    /*int*/maxusers,
+    /*bool(rs,ox,oy,nx,ny)*/movevalidator
+)
+{
+    if (rs.rules.length <= playertype)
+        return;
+
+    rs.rules[playertype] = {}
+    rs.rules[playertype].maxusers = maxusers;
+    rs.rules[playertype].movevalidator = movevalidator;
+}
+function SetPlayerTypeRule(rs, 
     /*int*/playertype,
     /*int*/tiletype,
+    /*int*/maxusers,
     /*bool(rs,x,y)*/visible)
 {
     if (rs.rules.length <= playertype)
@@ -72,8 +87,21 @@ function SetRule(rs,
     rs.rules[playertype].tiletypes[tiletype] = newrule;
 }
 
+function PlayerTypeMaxUsers(rs, playertype)
+{
+    if (rs.rules.length <= playertype)
+        return;
 
-function TileVisible(rs, x, y, playertype)
+    return rs.rules[playertype].maxusers;
+}
+function PlayerTypeCanMove(rs, playertype, ox, oy, nx, ny)
+{
+    if (rs.rules.length <= playertype)
+        return;
+
+    return rs.rules[playertype].movevalidator(rs, ox, oy, nx, ny);
+}
+function PlayerTypeCanSee(rs, playertype, x, y)
 {
     if (rs.rules.length <= playertype)
         return;
@@ -86,3 +114,5 @@ function TileVisible(rs, x, y, playertype)
 
     return rule.tiletypes[type].visible(rs, x, y);
 }
+
+
