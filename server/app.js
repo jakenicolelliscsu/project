@@ -7,20 +7,8 @@ rules = {};
 rs.SetRuleMatrixSize(rules, 2, 3);
 rs.SetBounds(rules, 15, 15);
 
-rs.SetPlayerType(rules, 0, 1, _Player0MoveHandler, true);
-rs.SetPlayerType(rules, 1, 1, (lrs, ox, oy, nx, ny) => {return false;}, false);
-
-//blank
-rs.SetPlayerTypeRule(rules, 0, 0, (lrs, x, y) => {return false;}, false);
-rs.SetPlayerTypeRule(rules, 1, 0, (lrs, x, y) => {return true;}, false);
-
-//wall
-rs.SetPlayerTypeRule(rules, 0, 1, (lrs, x, y) => {return false;}, false);
-rs.SetPlayerTypeRule(rules, 1, 1, (lrs, x, y) => {return true;}, false);
-
-//win block
-rs.SetPlayerTypeRule(rules, 0, 2, (lrs, x, y) => {return true;}, true);
-rs.SetPlayerTypeRule(rules, 1, 2, (lrs, x, y) => {return false;}, true);
+rs.SetPlayerType(rules, 0, 1, _Player0MoveHandler, _Player0VisHandler);
+rs.SetPlayerType(rules, 1, 1, _Player1MoveHandler, _Player1VisHandler);
 
 function _Player0MoveHandler(lrs, otype, ox, oy, ntype, nx, ny)
 {
@@ -34,6 +22,25 @@ function _Player0MoveHandler(lrs, otype, ox, oy, ntype, nx, ny)
 
     return false;
 }
+function _Player1MoveHandler(lrs, otype, ox, oy, ntype, nx, ny)
+{
+    return false;
+}
+function _Player0VisHandler(lrs, type, x, y)
+{
+    //move can only see win block
+    if (type == 2) return true;
+
+    return false;
+}
+function _Player1VisHandler(lrs, type, x, y)
+{
+    if (type != 2) return true;
+
+    return false;
+}
+
+
 
 w = rs.Width(rules);
 h = rs.Height(rules);

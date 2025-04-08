@@ -63,7 +63,7 @@ function SetPlayerType(rs,
     /*int*/playertype,
     /*int*/maxusers,
     /*bool(rs,otype,ox,oy,ntype,nx,ny)*/movevalidator,
-    /*bool*/canseepawn
+    /*bool(rs,type,x,y)*/visvalidator
 )
 {
     if (rs.rules.length <= playertype)
@@ -71,25 +71,8 @@ function SetPlayerType(rs,
 
     rs.rules[playertype].maxusers = maxusers;
     rs.rules[playertype].movevalidator = movevalidator;
-    rs.rules[playertype].canseepawn = canseepawn;
-}
-function SetPlayerTypeRule(rs, 
-    /*int*/playertype,
-    /*int*/tiletype,
-    /*bool(rs,x,y)*/visible,
-    /*bool*/wins)
-{
-    if (rs.rules.length <= playertype)
-        return;
-
-    if (rs.rules[playertype].tiletypes.length <= tiletype)
-        return;
-
-    newrule = {};
-    newrule.visible = visible;
-    newrule.wins = wins;
-
-    rs.rules[playertype].tiletypes[tiletype] = newrule;
+    rs.rules[playertype].visvalidator = visvalidator;
+    rs.rules[playertype].canseepawn = true;
 }
 
 function PlayerTypeMaxUsers(rs, playertype)
@@ -115,11 +98,8 @@ function PlayerTypeCanSee(rs, playertype, x, y)
         return;
 
     type = TileType(rs, x, y);
-    
-    if (rs.rules[playertype].tiletypes.length <= type)
-        return false;
 
-    return rs.rules[playertype].tiletypes[type].visible(rs, x, y);
+    return rs.rules[playertype].visvalidator(rs, type, x, y);
 }
 function PlayerTypeCanSeePawn(rs, playertype)
 {
@@ -130,14 +110,6 @@ function PlayerTypeCanSeePawn(rs, playertype)
 }
 function TileWins(rs, playertype, x, y)
 {
-    if (rs.rules.length <= playertype)
-        return;
-
-    type = TileType(rs, x, y);
-    
-    if (rs.rules[playertype].tiletypes.length <= type)
-        return false;
-
-    return rs.rules[playertype].tiletypes[type].wins;
+    return false;
 }
 
