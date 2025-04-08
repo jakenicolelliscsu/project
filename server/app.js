@@ -22,8 +22,11 @@ rs.SetPlayerTypeRule(rules, 1, 1, (lrs, x, y) => {return true;}, false);
 rs.SetPlayerTypeRule(rules, 0, 2, (lrs, x, y) => {return true;}, true);
 rs.SetPlayerTypeRule(rules, 1, 2, (lrs, x, y) => {return false;}, true);
 
-function _Player0MoveHandler(lrs, ox, oy, nx, ny)
+function _Player0MoveHandler(lrs, otype, ox, oy, ntype, nx, ny)
 {
+    //we cant move on walls.
+    if (ntype == 1) return false;
+
     if (nx == ox+1 || nx == ox-1 || nx == ox)
         return true;
     if (ny == oy+1 || ny == oy-1 || ny == oy)

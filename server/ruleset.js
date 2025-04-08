@@ -62,7 +62,7 @@ function SetRuleMatrixSize(rs, playertype_count, tiletype_count)
 function SetPlayerType(rs,
     /*int*/playertype,
     /*int*/maxusers,
-    /*bool(rs,ox,oy,nx,ny)*/movevalidator,
+    /*bool(rs,otype,ox,oy,ntype,nx,ny)*/movevalidator,
     /*bool*/canseepawn
 )
 {
@@ -104,7 +104,10 @@ function PlayerTypeCanMove(rs, playertype, ox, oy, nx, ny)
     if (rs.rules.length <= playertype)
         return;
 
-    return rs.rules[playertype].movevalidator(rs, ox, oy, nx, ny);
+    otype = TileType(rs, ox, oy);
+    ntype = TileType(rs, nx, ny);
+
+    return rs.rules[playertype].movevalidator(rs, otype, ox, oy, ntype, nx, ny);
 }
 function PlayerTypeCanSee(rs, playertype, x, y)
 {
