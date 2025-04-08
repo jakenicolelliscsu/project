@@ -1,14 +1,6 @@
 module.exports = {
-    Ruleset, Width, Height, SetBounds, TileType, SetTileType, SetRuleMatrixSize, SetPlayerTypeRule, SetPlayerType, PlayerTypeMaxUsers, PlayerTypeCanMove, PlayerTypeCanSee, TileWins,
-    PlayerTypeCanSeePawn
-}
-
-function Ruleset()
-{
-    this.rules = [];
-    this.width = 0;
-    this.height = 0;
-    this.tile_types = [];
+    Width, Height, SetBounds, TileType, SetTileType, SetMoveCallback, SetPlayerType, PlayerTypeMaxUsers, PlayerTypeCanMove, PlayerTypeCanSee, TileWins,
+    PlayerTypeCanSeePawn, TileLinks, SetTileLinks
 }
 
 function Width(rs) { return rs.width; }
@@ -22,9 +14,13 @@ function SetBounds(rs, w, h)
         for(y=0; y < h; y++)
         {
             if (x < rs.width && y < rs.height)
+            {
                 new_tile_types[(x * w) + y] = rs.tile_types[(x * rs.width) + y];
+            }
             else
-                new_tile_types[(x * w) + y] = 0;
+            {
+                new_tile_types[(x * w) + y] = {};
+            }
         }
     }
 
@@ -36,34 +32,32 @@ function SetBounds(rs, w, h)
 
 function TileType(rs, x, y)
 {
-    return rs.tile_types[(x * rs.width) + y];
+    return rs.tile_types[(x * rs.width) + y].type;
 }
 function SetTileType(rs, x, y, t)
 {
     rs.tile_types[(x * rs.width) + y] = t;
 }
 
-
-
-function SetRuleMatrixSize(rs, playertype_count, tiletype_count)
+function TileLinks(rs, x, y)
 {
-    rs.rules = []
-    rs.rules.length = playertype_count;
-    for (i=0; i<playertype_count; i++)
-    {
-        rs.rules[i] = {};
-        rs.rules[i].tiletypes = [];
-        rs.rules[i].tiletypes.length = tiletype_count;
-        rs.rules[i].maxusers = 0;
-        rs.rules[i].movevalidator = (rs,ox,oy,nx,ny) => {return false;};
-    }
+    return rs.tile_types[(x * rs.width) + y].links;
+}
+function SetTileLinks(rs, x, y, /*(x,y)[]*/ data)
+{
+    rs.tile_types[(x * rs.width) + y].links = data;
+}
+
+function SetMoveCallback(rs, /*void(rs, type, x, y)*/onmove)
+{
+    rs.onmove = onmove;
 }
 
 function SetPlayerType(rs,
     /*int*/playertype,
     /*int*/maxusers,
     /*bool(rs,otype,ox,oy,ntype,nx,ny)*/movevalidator,
-    /*bool(rs,type,x,y)*/visvalidator
+    /*bool(rs,type,x,y)*/visvalidator,
 )
 {
     if (rs.rules.length <= playertype)
