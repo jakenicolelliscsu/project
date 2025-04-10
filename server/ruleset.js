@@ -19,7 +19,7 @@ function SetBounds(rs, w, h)
             }
             else
             {
-                new_tile_types[(x * w) + y] = {};
+                new_tile_types[(x * w) + y] = {type:-1};
             }
         }
     }
@@ -36,7 +36,7 @@ function TileType(rs, x, y)
 }
 function SetTileType(rs, x, y, t)
 {
-    rs.tile_types[(x * rs.width) + y] = t;
+    rs.tile_types[(x * rs.width) + y].type = t;
 }
 
 function TileLinks(rs, x, y)
@@ -88,7 +88,7 @@ function PlayerTypeCanMove(rs, playertype, ox, oy, nx, ny)
 function PlayerTypeCanSee(rs, playertype, x, y)
 {
     if (rs.rules.length <= playertype)
-        return;
+        return false;
 
     type = TileType(rs, x, y);
 

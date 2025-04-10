@@ -101,7 +101,7 @@ function HandleMove(l, lrs, playertype, x, y)
 {
     curpos = CurrentPos(l);
     console.log("From (" + curpos.x  + ", " + curpos.y + ") -> ("+ x +", " + y +")");
-    if (rs.PlayerTypeCanMove(lrs, playertype, curpos.x, curpos.y, x, y))
+    if (rs.PlayerTypeCanMove(l.ruleset, playertype, curpos.x, curpos.y, x, y))
     {
         //push current move onto top.
         l.moves.push({x:x, y:y});
@@ -120,14 +120,14 @@ function HandleInfo(l, lrs, playertype)
     for (x=0; x<w; x++)
         for (y=0; y<h; y++)
     {
-        if (rs.PlayerTypeCanSee(lrs, playertype, x, y))
+        if (rs.PlayerTypeCanSee(l.ruleset, playertype, x, y))
         {
-            grid[x*w + y] = rs.TileType(lrs, x, y);
+            grid[y*h + x] = rs.TileType(l.ruleset, x, y);
         }
         else
         {
             //cant see, send default.
-            grid[x*w + y] = -1;
+            grid[y*h + x] = -1;
         }
     }
 
