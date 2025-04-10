@@ -55,9 +55,13 @@ function SetPlayerType(rs,
     /*bool(rs,type,x,y)*/visvalidator,
 )
 {
-    if (rs.rules.length <= playertype)
-        return;
+    if (rs.rules == undefined)
+        rs.rules = [];
 
+    if (rs.rules.length <= playertype)
+        rs.rules.length = playertype + 1;
+
+    rs.rules[playertype] = {};
     rs.rules[playertype].maxusers = maxusers;
     rs.rules[playertype].movevalidator = movevalidator;
     rs.rules[playertype].visvalidator = visvalidator;

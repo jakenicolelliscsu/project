@@ -5,9 +5,7 @@ const sql = require('mysql');
 const rs = require('./ruleset.js');
 
 rules = {};
-rs.SetRuleMatrixSize(rules, 2, 3);
 rs.SetBounds(rules, 15, 15);
-
 rs.SetPlayerType(rules, 0, 1, _Player0MoveHandler, _Player0VisHandler);
 rs.SetPlayerType(rules, 1, 1, _Player1MoveHandler, _Player1VisHandler);
 
@@ -65,21 +63,21 @@ lobby.moves = [{x:13,y:13}];
 
 function CurrentPos(l)
 {
-    move = l.moves[l.length-1];
+    move = l.moves[l.moves.length-1];
     return {x:move.x, y:move.y};
 }
 function CurrentGrid(l)
 {
     grid = [];
-    w = rs.Width(l.rules);
-    h = rs.Height(l.rules);
+    w = rs.Width(l.ruleset);
+    h = rs.Height(l.ruleset);
     grid.length = w * h;
     
     //set initial value.
     for (x=0; x<w; x++)
         for (y=0; y<h; y++)
     {
-        grid[y*h + w] = rs.TileType(l.rules, x, y);
+        grid[y*h + w] = rs.TileType(l.ruleset, x, y);
     }
 
     for(i=0; i<l.moves.length; i++)
@@ -89,6 +87,8 @@ function CurrentGrid(l)
 
         //todo: handle points, buttons, and wins.
     }
+
+    return grid;
 }
 
 
@@ -104,7 +104,7 @@ function HandleMove(l, lrs, playertype, x, y)
     if (rs.PlayerTypeCanMove(lrs, playertype, curpos.x, curpos.y, x, y))
     {
         //push current move onto top.
-        moves.push({x:x, y:y});
+        l.moves.push({x:x, y:y});
         return true;
     }
     return false;
@@ -113,8 +113,8 @@ function HandleMove(l, lrs, playertype, x, y)
 function HandleInfo(l, lrs, playertype)
 {
     grid = CurrentGrid(l);
-    w = rs.Width(l.rules);
-    h = rs.Height(l.rules);
+    w = rs.Width(l.ruleset);
+    h = rs.Height(l.ruleset);
     curpos = CurrentPos(l);
 
     for (x=0; x<w; x++)
@@ -167,7 +167,8 @@ function Route(req, res)
         if (reqDir == "down")
             dy = -1;
 
-        HandleMove(lobby, rules, reqPlayerType, lobby.playerpos.x + dx, lobby.playerpos.y + dy)
+        curpos = CurrentPos(lobby);
+        HandleMove(lobby, lobby.ruleset, reqPlayerType, curpos.x + dx, curpos.y + dy)
         {
             res.writeHead(200);
             res.end();
@@ -188,7 +189,7 @@ function Route(req, res)
 
     //else, serve a file from the public folder.
     path = "public" + requrl.pathname;
-    console.log("reading file...");
+    console.log("reading file... " + path);
     fs.readFile(path, (err, data) =>
     {
         if (!err)
