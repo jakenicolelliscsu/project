@@ -1,7 +1,8 @@
 const http = require('http');
 const url = require('url');
-const rs = require('./ruleset.js');
 const fs = require('fs');
+const sql = require('mysql');
+const rs = require('./ruleset.js');
 
 rules = {};
 rs.SetRuleMatrixSize(rules, 2, 3);
@@ -41,7 +42,6 @@ function _Player1VisHandler(lrs, type, x, y)
 }
 
 
-
 w = rs.Width(rules);
 h = rs.Height(rules);
 
@@ -60,56 +60,85 @@ for (x=0; x<w; x++)
 rs.SetTileType(rules, 1, 0, 2);
 
 lobby = {};
-lobby.playerpos = {};
-lobby.playerpos.x = 13;
-lobby.playerpos.y = 13;
+lobby.ruleset = rules;
+lobby.moves = [{x:13,y:13}];
+
+function CurrentPos(l)
+{
+    move = l.moves[l.length-1];
+    return {x:move.x, y:move.y};
+}
+function CurrentGrid(l)
+{
+    grid = [];
+    w = rs.Width(l.rules);
+    h = rs.Height(l.rules);
+    grid.length = w * h;
+    
+    //set initial value.
+    for (x=0; x<w; x++)
+        for (y=0; y<h; y++)
+    {
+        grid[y*h + w] = rs.TileType(l.rules, x, y);
+    }
+
+    for(i=0; i<l.moves.length; i++)
+    {
+        mx = l.moves[i].x;
+        my = l.moves[i].y;
+
+        //todo: handle points, buttons, and wins.
+    }
+}
+
 
 function CheckWin(l, lrs, playertype)
 {
-    return rs.TileWins(lrs, playertype, l.playerpos.x, l.playerpos.y);
+    curpos = CurrentPos(l);
+    return rs.TileWins(lrs, playertype, curpos.x, curpos.y);
 }
 function HandleMove(l, lrs, playertype, x, y)
 {
-    console.log("From (" + l.playerpos.x  + ", " + l.playerpos.y + ")");
-    console.log("To ("+ x +", " + y +")");
-    if (rs.PlayerTypeCanMove(lrs, playertype, l.playerpos.x, l.playerpos.y, x, y))
+    curpos = CurrentPos(l);
+    console.log("From (" + curpos.x  + ", " + curpos.y + ") -> ("+ x +", " + y +")");
+    if (rs.PlayerTypeCanMove(lrs, playertype, curpos.x, curpos.y, x, y))
     {
-        l.playerpos.x = x;
-        l.playerpos.y = y;
+        //push current move onto top.
+        moves.push({x:x, y:y});
         return true;
     }
     return false;
 }
+
 function HandleInfo(l, lrs, playertype)
 {
-    w = rs.Width(lrs);
-    h = rs.Height(lrs);
-
-    info = {};
-    info.grid = [];
-    info.grid.length = w*h;
+    grid = CurrentGrid(l);
+    w = rs.Width(l.rules);
+    h = rs.Height(l.rules);
+    curpos = CurrentPos(l);
 
     for (x=0; x<w; x++)
         for (y=0; y<h; y++)
     {
         if (rs.PlayerTypeCanSee(lrs, playertype, x, y))
         {
-            info.grid[x*w + y] = rs.TileType(lrs, x, y);
+            grid[x*w + y] = rs.TileType(lrs, x, y);
         }
         else
         {
-            info.grid[x*w + y] = -1;
+            //cant see, send default.
+            grid[x*w + y] = -1;
         }
     }
 
+    info = {};
+    info.grid = grid;
     info.won = CheckWin(l, lrs, playertype);
-
     info.width = w;
     info.height = h;
-
     info.seesplayer = rs.PlayerTypeCanSeePawn(lrs, playertype);
-    info.posx = l.playerpos.x;
-    info.posy = l.playerpos.y;
+    info.posx = curpos.x;
+    info.posy = curpos.y;
 
     return info;
 }

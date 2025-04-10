@@ -1,5 +1,5 @@
 module.exports = {
-    Width, Height, SetBounds, TileType, SetTileType, SetMoveCallback, SetPlayerType, PlayerTypeMaxUsers, PlayerTypeCanMove, PlayerTypeCanSee, TileWins,
+    Width, Height, SetBounds, TileType, SetTileType, SetPlayerType, PlayerTypeMaxUsers, PlayerTypeCanMove, PlayerTypeCanSee, TileWins,
     PlayerTypeCanSeePawn, TileLinks, SetTileLinks
 }
 
@@ -46,11 +46,6 @@ function TileLinks(rs, x, y)
 function SetTileLinks(rs, x, y, /*(x,y)[]*/ data)
 {
     rs.tile_types[(x * rs.width) + y].links = data;
-}
-
-function SetMoveCallback(rs, /*void(rs, type, x, y)*/onmove)
-{
-    rs.onmove = onmove;
 }
 
 function SetPlayerType(rs,
