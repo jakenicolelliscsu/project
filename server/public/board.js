@@ -50,17 +50,21 @@ moveCallback.onload = () =>
 
 function UpdateBoard()
 {
-    title = document.getElementById("title");
-    name = title.attributes.name.value;
-    url = "/board?playertype=" + name;
+    playertype = new URLSearchParams(window.location.search).get("playertype");
 
+    url = "/board?playertype=" + playertype;
+
+    title = document.getElementById("title");
+    
     boardCallback.open("GET", url);
     boardCallback.send();
 }
 
 document.addEventListener("keydown", (event) =>
 {
+    playertype = new URLSearchParams(window.location.search).get("playertype");
     dir = "up";
+
     switch(event.key)
     {
         case "ArrowDown":
@@ -79,11 +83,11 @@ document.addEventListener("keydown", (event) =>
             return;
     }
     
-    title = document.getElementById("title");
-    name = title.attributes.name.value;
-    url = "/move?playertype=" + name + "&dir=" + dir;
+    url = "/move?playertype=" + playertype + "&dir=" + dir;
     moveCallback.open("GET", url);
     moveCallback.send();
 
     UpdateBoard();
 })
+
+UpdateBoard();
