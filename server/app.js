@@ -184,9 +184,9 @@ function Route(req, res)
         if (reqDir == "right")
             dx = 1;
         if (reqDir == "up")
-            dy = 1;
-        if (reqDir == "down")
             dy = -1;
+        if (reqDir == "down")
+            dy = 1;
 
         curpos = CurrentPos(lobby);
         HandleMove(lobby, lobby.ruleset, reqPlayerType, curpos.x + dx, curpos.y + dy)
