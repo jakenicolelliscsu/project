@@ -4,8 +4,15 @@ const fs = require('fs');
 const sql = require('mysql');
 const rs = require('./ruleset.js');
 
+const sqlconnection = sql.createPool({
+    host : '146.148.100.118',
+    user : 'user',
+    password : '1111111',
+    database : 'maps',
+    connectionLimit : 10
+    });
+
 rules = {};
-rs.SetBounds(rules, 15, 15);
 rs.SetPlayerType(rules, 0, 1, _Player0MoveHandler, _Player0VisHandler);
 rs.SetPlayerType(rules, 1, 1, _Player1MoveHandler, _Player1VisHandler);
 
@@ -39,23 +46,6 @@ function _Player1VisHandler(lrs, type, x, y)
     return false;
 }
 
-
-w = rs.Width(rules);
-h = rs.Height(rules);
-
-//temp grid setup.
-for (x=0; x<w; x++)
-    for (y=0; y<h; y++)
-{
-    type = 0;
-    if (x == 0 || x == w-1)
-        type = 1;
-    if (y == 0 || y == h-1)
-        type = 1;
-
-    rs.SetTileType(rules, x, y, type);
-}
-rs.SetTileType(rules, 1, 0, 2);
 
 lobby = {};
 lobby.ruleset = rules;
@@ -97,6 +87,7 @@ function CheckWin(l, lrs, playertype)
     curpos = CurrentPos(l);
     return rs.TileWins(lrs, playertype, curpos.x, curpos.y);
 }
+
 function HandleMove(l, lrs, playertype, x, y)
 {
     curpos = CurrentPos(l);
@@ -109,7 +100,6 @@ function HandleMove(l, lrs, playertype, x, y)
     }
     return false;
 }
-
 function HandleInfo(l, lrs, playertype)
 {
     grid = CurrentGrid(l);
@@ -142,7 +132,24 @@ function HandleInfo(l, lrs, playertype)
 
     return info;
 }
-
+function HandleMapChange(l, query)
+{
+    rs.SetBounds(l.ruleset, query.width, query.height);
+    
+    //temp grid setup.
+    for (x=0; x< query.width; x++)
+        for (y=0; y<query.height; y++)
+    {
+        type = 0;
+        if (x == 0 || x ==  query.width-1)
+            type = 1;
+        if (y == 0 || y == query.height-1)
+            type = 1;
+    
+        rs.SetTileType(rules, x, y, type);
+    }
+    rs.SetTileType(rules, 1, 0, 2);
+}
 
 
 function Route(req, res)
@@ -176,6 +183,7 @@ function Route(req, res)
         }
     }
 
+    //player wants the current state of the board
     if (requrl.pathname == "/board")
     {
         console.log("sending board info...");
@@ -183,6 +191,28 @@ function Route(req, res)
         grid = HandleInfo(lobby, rules, reqPlayerType);
         res.writeHead(200, {'Content-Type': 'application/json'});
         res.write(JSON.stringify(grid))
+        res.end();
+        return;
+    }
+
+    //player wants to change the map
+    if (requrl.pathname == "/mapselect")
+    {
+        console.log("SQL");
+        mapname = requrl.query.mapname;
+        console.log(mapname);
+        sqlconnection.query("SELECT * FROM rulesets WHERE name = \"" + mapname + "\";", (error, results, fields) =>
+        {
+            if (error)
+            {
+                console.log(error);
+            }
+            else
+            {
+                HandleMapChange(lobby, results[0]);
+            }
+        });
+        res.writeHead(200, {'Content-Type': 'application/json'});
         res.end();
         return;
     }
