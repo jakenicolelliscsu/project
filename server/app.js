@@ -190,11 +190,9 @@ function Route(req, res)
 
         curpos = CurrentPos(lobby);
         HandleMove(lobby, lobby.ruleset, reqPlayerType, curpos.x + dx, curpos.y + dy)
-        {
             res.writeHead(200);
             res.end();
             return;
-        }
     }
 
     //player wants the current state of the board
@@ -214,6 +212,7 @@ function Route(req, res)
     {
         mapname = requrl.query.mapname;
         HandleMapChange(lobby, mapname);
+        console.log("Selecting ruleset: " + mapname);
         res.writeHead(200, {'Content-Type': 'application/json'});
         res.end();
         return;

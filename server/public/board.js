@@ -55,6 +55,7 @@ function UpdateBoard()
     url = "/board?playertype=" + playertype;
 
     title = document.getElementById("title");
+    title.text = "Player " + playertype;
     
     boardCallback.open("GET", url);
     boardCallback.send();
