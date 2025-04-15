@@ -132,23 +132,37 @@ function HandleInfo(l, lrs, playertype)
 
     return info;
 }
-function HandleMapChange(l, query)
+function HandleMapChange(l, mapname)
 {
-    rs.SetBounds(l.ruleset, query.width, query.height);
-    
-    //temp grid setup.
-    for (x=0; x< query.width; x++)
-        for (y=0; y<query.height; y++)
-    {
-        type = 0;
-        if (x == 0 || x ==  query.width-1)
-            type = 1;
-        if (y == 0 || y == query.height-1)
-            type = 1;
-    
-        rs.SetTileType(rules, x, y, type);
-    }
-    rs.SetTileType(rules, 1, 0, 2);
+    sqlconnection.query("SELECT * FROM rulesets WHERE name = \"" + mapname + "\";", (error, results, fields) =>
+        {
+            if (error)
+            {
+                console.log(error);
+            }
+            else
+            {
+                result = results[0]
+                rs.SetBounds(l.ruleset, result.width, result.height);
+                
+                //temp grid setup.
+                for (x=0; x< result.width; x++)
+                    for (y=0; y<result.height; y++)
+                {
+                    type = 0;
+                    if (x == 0 || x ==  result.width-1)
+                        type = 1;
+                    if (y == 0 || y == result.height-1)
+                        type = 1;
+                
+                    rs.SetTileType(rules, x, y, type);
+                }
+                rs.SetTileType(rules, 1, 0, 2);
+            }
+        });
+}
+function HandleMapQuery(l)
+{
 }
 
 
@@ -198,23 +212,27 @@ function Route(req, res)
     //player wants to change the map
     if (requrl.pathname == "/mapselect")
     {
-        console.log("SQL");
         mapname = requrl.query.mapname;
-        console.log(mapname);
-        sqlconnection.query("SELECT * FROM rulesets WHERE name = \"" + mapname + "\";", (error, results, fields) =>
-        {
-            if (error)
-            {
-                console.log(error);
-            }
-            else
-            {
-                HandleMapChange(lobby, results[0]);
-            }
-        });
+        HandleMapChange(lobby, mapname);
         res.writeHead(200, {'Content-Type': 'application/json'});
         res.end();
         return;
+    }
+    //player wants to know what maps are available
+    if (requrl.pathname == "/mapquery")
+    {
+        res.writeHead(200, {'Content-Type': 'application/json'});
+        
+        sqlconnection.query("SELECT name FROM rulesets;", (error, results, fields) =>
+        {
+            names = [];
+            for (row of results)
+                names.push(row.name);
+            
+            res.write(JSON.stringify(names));
+            res.end();
+        });
+        return; //return here, the async handler will finish the http response.
     }
 
     //else, serve a file from the public folder.
@@ -259,5 +277,6 @@ function Route(req, res)
     });
     
 }
+
 const server = http.createServer(Route);
 server.listen(80);
