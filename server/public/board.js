@@ -34,7 +34,7 @@ boardCallback.onload = () =>
         }
 
         if (board.won)
-           alert ("Winner!!!!");
+           alert ("Winner! Moves: " + board.moves.length);
     }
     else
     {

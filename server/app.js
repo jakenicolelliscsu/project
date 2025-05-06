@@ -14,8 +14,8 @@ const sqlconnection = sql.createPool({
     });
 
 rules = {};
-rs.SetPlayerType(rules, 0, 1, _Player0MoveHandler, _Player0VisHandler);
-rs.SetPlayerType(rules, 1, 1, _Player1MoveHandler, _Player1VisHandler);
+rs.SetPlayerType(rules, 0, 1, _Player0MoveHandler, _Player0VisHandler, true);
+rs.SetPlayerType(rules, 1, 1, _Player1MoveHandler, _Player1VisHandler, false);
 
 function _Player0MoveHandler(lrs, otype, ox, oy, ntype, nx, ny)
 {
@@ -130,6 +130,7 @@ function HandleInfo(l, lrs, playertype)
     info.seesplayer = rs.PlayerTypeCanSeePawn(lrs, playertype);
     info.posx = curpos.x;
     info.posy = curpos.y;
+    info.moves = l.moves;
 
     return info;
 }
