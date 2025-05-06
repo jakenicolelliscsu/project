@@ -19,7 +19,7 @@ boardCallback.onload = () =>
             {
                 cell = row.insertCell();
                 cell.style.width = "20px";
-                tiletype = board.grid[i*board.width + j];
+                tiletype = board.grid[j*board.width + i];
                 
                 color = "grey";
                 if (tiletype == 0) color = "green";

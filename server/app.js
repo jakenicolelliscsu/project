@@ -20,7 +20,7 @@ rs.SetPlayerType(rules, 1, 1, _Player1MoveHandler, _Player1VisHandler);
 function _Player0MoveHandler(lrs, otype, ox, oy, ntype, nx, ny)
 {
     //we cant move on walls.
-    if (ntype == 1) return false;
+    if (ntype == 0) return false;
 
     if (nx == ox+1 || nx == ox-1 || nx == ox)
         return true;
@@ -146,12 +146,15 @@ function HandleMapChange(l, mapname)
                 result = results[0]
                 console.log(result);
                 
-                curmaze = maze(result.width, result.height, true, 5487423);
+                curmaze = maze(result.width, result.height, true);
 
                 rs.SetBounds(l.ruleset, result.width*3, result.height*3);
                 
                 l.maze = curmaze;
-                l.moves = [{x:result.startx, y:result.starty}]
+                l.moves = [{
+                    x: (result.startx*3)+1,
+                    y: (result.starty*3)+1
+                }];
 
                 for (x=1; x < result.width*3; x+=3)
                     for (y=1; y < result.height*3; y+=3)
@@ -165,18 +168,30 @@ function HandleMapChange(l, mapname)
                     rs.SetTileType(rules, x-1, y+1, 0);
 
                     //set cell edges
+                    top = 1;
                     if (node.top)
-                        rs.SetTileType(rules, x,   y-1, 0);
+                        top = 0;
+                    bottom = 1;
                     if (node.bottom)
-                        rs.SetTileType(rules, x,   y+1, 0);
+                        bottom = 0;
+                    right = 1;
                     if (node.right)
-                        rs.SetTileType(rules, x+1, y,   0);
+                        right = 0;
+                    left = 1;
                     if (node.left)
-                        rs.SetTileType(rules, x-1, y,   0);
+                        left = 0;
+                    
+                    rs.SetTileType(rules, x,   y-1, top);
+                    rs.SetTileType(rules, x,   y+1, bottom);
+                    rs.SetTileType(rules, x-1, y,   left);
+                    rs.SetTileType(rules, x+1, y,   right);
 
                     rs.SetTileType(rules, x, y, 1);
                 }
-                // rs.SetTileType(rules, 1, 0, 2);
+
+                //set goal
+                rs.SetTileType(rules, (result.width*3)-2, (result.height*3)-2, 2);
+
             }
         });
 }
