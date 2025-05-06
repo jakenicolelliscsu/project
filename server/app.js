@@ -3,12 +3,13 @@ const url = require('url');
 const fs = require('fs');
 const sql = require('mysql');
 const rs = require('./ruleset.js');
+const maze = require('generate-maze');
 
 const sqlconnection = sql.createPool({
-    host : '146.148.100.118',
-    user : 'user',
-    password : '1111111',
-    database : 'maps',
+    host : 'localhost',
+    user : 'root',
+    password : '',
+    database : 'rulesets',
     connectionLimit : 10
     });
 
@@ -49,7 +50,7 @@ function _Player1VisHandler(lrs, type, x, y)
 
 lobby = {};
 lobby.ruleset = rules;
-lobby.moves = [{x:13,y:13}];
+lobby.moves = [];
 
 function CurrentPos(l)
 {
@@ -143,21 +144,43 @@ function HandleMapChange(l, mapname)
             else
             {
                 result = results[0]
-                rs.SetBounds(l.ruleset, result.width, result.height);
+                console.log(result);
                 
-                //temp grid setup.
-                for (x=0; x< result.width; x++)
-                    for (y=0; y<result.height; y++)
+                curmaze = maze(result.width, result.height, true, 5487423);
+
+                rs.SetBounds(l.ruleset, result.width*3, result.height*3);
+                
+                l.maze = curmaze;
+                l.moves = [{x:result.startx, y:result.starty}]
+
+                // //temp grid setup.
+                for (x=1; x < result.width*3; x+=3)
+                    for (y=1; y < result.height*3; y+=3)
                 {
-                    type = 0;
-                    if (x == 0 || x ==  result.width-1)
-                        type = 1;
-                    if (y == 0 || y == result.height-1)
-                        type = 1;
-                
-                    rs.SetTileType(rules, x, y, type);
+                    node = curmaze[(y-1)/3][(x-1)/3];
+
+                    if (node.top)
+                        rs.SetTileType(rules, x, y-1, 0);
+                    if (node.bottom)
+                        rs.SetTileType(rules, x, y+1, 0);
+                    if (node.right)
+                        rs.SetTileType(rules, x+1, y, 0);
+                    if (node.left)
+                        rs.SetTileType(rules, x-1, y, 0);
+
+                    if (node.top && node.right)
+                        rs.SetTileType(rules, x+1, y-1, 0);
+                    if (node.top && node.left)
+                        rs.SetTileType(rules, x-1, y-1, 0);
+                    if (node.bottom && node.right)
+                        rs.SetTileType(rules, x+1, y+1, 0);
+                    if (node.bottom && node.left)
+                        rs.SetTileType(rules, x-1, y+1, 0);
+
+
+                    rs.SetTileType(rules, x, y, 1);
                 }
-                rs.SetTileType(rules, 1, 0, 2);
+                // rs.SetTileType(rules, 1, 0, 2);
             }
         });
 }
@@ -224,11 +247,19 @@ function Route(req, res)
         
         sqlconnection.query("SELECT name FROM rulesets;", (error, results, fields) =>
         {
-            names = [];
-            for (row of results)
-                names.push(row.name);
+            if (!error)
+            {
+                names = [];
+                for (row of results)
+                    names.push(row.name);
             
-            res.write(JSON.stringify(names));
+                res.write(JSON.stringify(names));
+            }
+            else
+            {
+                console.log(error);
+            }
+
             res.end();
         });
         return; //return here, the async handler will finish the http response.

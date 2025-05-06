@@ -77,8 +77,13 @@ function PlayerTypeMaxUsers(rs, playertype)
 }
 function PlayerTypeCanMove(rs, playertype, ox, oy, nx, ny)
 {
+    if (nx < 0 || nx >= Width(rs))
+        return false;
+    if (ny < 0 || ny >= Height(rs))
+        return false;
+
     if (rs.rules.length <= playertype)
-        return;
+        return false;
 
     otype = TileType(rs, ox, oy);
     ntype = TileType(rs, nx, ny);
