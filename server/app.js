@@ -153,30 +153,31 @@ function HandleMapChange(l, mapname)
                 l.maze = curmaze;
                 l.moves = [{x:result.startx, y:result.starty}]
 
-                // //temp grid setup.
                 for (x=1; x < result.width*3; x+=3)
                     for (y=1; y < result.height*3; y+=3)
                 {
                     node = curmaze[(y-1)/3][(x-1)/3];
 
+                    rs.SetTileType(rules, x-1, y-1, 0);
+                    rs.SetTileType(rules, x+1, y-1, 0);
+                    rs.SetTileType(rules, x+1, y+1, 0);
+                    rs.SetTileType(rules, x-1, y+1, 0);
                     if (node.top)
-                        rs.SetTileType(rules, x, y-1, 0);
+                    {
+                        rs.SetTileType(rules, x,   y-1, 0);
+                    }
                     if (node.bottom)
-                        rs.SetTileType(rules, x, y+1, 0);
+                    {
+                        rs.SetTileType(rules, x,   y+1, 0);
+                    }
                     if (node.right)
-                        rs.SetTileType(rules, x+1, y, 0);
+                    {
+                        rs.SetTileType(rules, x+1, y,   0);
+                    }
                     if (node.left)
-                        rs.SetTileType(rules, x-1, y, 0);
-
-                    if (node.top && node.right)
-                        rs.SetTileType(rules, x+1, y-1, 0);
-                    if (node.top && node.left)
-                        rs.SetTileType(rules, x-1, y-1, 0);
-                    if (node.bottom && node.right)
-                        rs.SetTileType(rules, x+1, y+1, 0);
-                    if (node.bottom && node.left)
-                        rs.SetTileType(rules, x-1, y+1, 0);
-
+                    {
+                        rs.SetTileType(rules, x-1, y,   0);
+                    }
 
                     rs.SetTileType(rules, x, y, 1);
                 }
