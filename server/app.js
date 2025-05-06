@@ -158,26 +158,21 @@ function HandleMapChange(l, mapname)
                 {
                     node = curmaze[(y-1)/3][(x-1)/3];
 
+                    //set cell corners
                     rs.SetTileType(rules, x-1, y-1, 0);
                     rs.SetTileType(rules, x+1, y-1, 0);
                     rs.SetTileType(rules, x+1, y+1, 0);
                     rs.SetTileType(rules, x-1, y+1, 0);
+
+                    //set cell edges
                     if (node.top)
-                    {
                         rs.SetTileType(rules, x,   y-1, 0);
-                    }
                     if (node.bottom)
-                    {
                         rs.SetTileType(rules, x,   y+1, 0);
-                    }
                     if (node.right)
-                    {
                         rs.SetTileType(rules, x+1, y,   0);
-                    }
                     if (node.left)
-                    {
                         rs.SetTileType(rules, x-1, y,   0);
-                    }
 
                     rs.SetTileType(rules, x, y, 1);
                 }
