@@ -147,26 +147,26 @@ function HandleMapChange(l, mapname)
                 result = results[0]
                 console.log(result);
                 
-                curmaze = maze(result.width, result.height, true);
+                curmaze = maze(result.width, result.height, true, result.seed);
 
-                rs.SetBounds(l.ruleset, result.width*3, result.height*3);
+                rs.SetBounds(l.ruleset, (result.width*2)+1, (result.height*2)+1);
                 
                 l.maze = curmaze;
                 l.moves = [{
-                    x: (result.startx*3)+1,
-                    y: (result.starty*3)+1
+                    x: (result.startx*2)+1,
+                    y: (result.starty*2)+1
                 }];
 
-                for (x=1; x < result.width*3; x+=3)
-                    for (y=1; y < result.height*3; y+=3)
+                for (x=1; x < result.width*2; x+=2)
+                    for (y=1; y < result.height*2; y+=2)
                 {
-                    node = curmaze[(y-1)/3][(x-1)/3];
+                    node = curmaze[(y-1)/2][(x-1)/2];
 
                     //set cell corners
                     rs.SetTileType(rules, x-1, y-1, 0);
-                    rs.SetTileType(rules, x+1, y-1, 0);
-                    rs.SetTileType(rules, x+1, y+1, 0);
-                    rs.SetTileType(rules, x-1, y+1, 0);
+                    // rs.SetTileType(rules, x+1, y-1, 0);
+                    // rs.SetTileType(rules, x+1, y+1, 0);
+                    // rs.SetTileType(rules, x-1, y+1, 0);
 
                     //set cell edges
                     top = 1;
@@ -183,15 +183,19 @@ function HandleMapChange(l, mapname)
                         left = 0;
                     
                     rs.SetTileType(rules, x,   y-1, top);
-                    rs.SetTileType(rules, x,   y+1, bottom);
+                    // rs.SetTileType(rules, x,   y+1, bottom);
                     rs.SetTileType(rules, x-1, y,   left);
-                    rs.SetTileType(rules, x+1, y,   right);
+                    // rs.SetTileType(rules, x+1, y,   right);
 
                     rs.SetTileType(rules, x, y, 1);
                 }
 
+                //fill edges
+                for (i=0; i<=result.width*2; i++) rs.SetTileType(rules, i, (result.height*2), 0);
+                for (i=0; i<=result.height*2; i++) rs.SetTileType(rules, (result.width*2), i, 0);
+
                 //set goal
-                rs.SetTileType(rules, (result.width*3)-2, (result.height*3)-2, 2);
+                rs.SetTileType(rules, (result.width*2)-1, (result.height*2)-1, 2);
 
             }
         });

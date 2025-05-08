@@ -10,6 +10,7 @@ boardCallback.onload = () =>
         board = JSON.parse(boardCallback.responseText);   
         
         table.innerHTML = "";
+        table.style.borderCollapse = "collapse";
     
         for(j=0; j<board.height; j++)
         {
@@ -26,11 +27,20 @@ boardCallback.onload = () =>
                 if (tiletype == 1) color = "grey";
                 if (tiletype == 2) color = "yellow";
 
-                if (board.seesplayer && board.posx == i && board.posy == j)
-                    color = "red";
-
                 cell.style.backgroundColor = color;
             }
+        }
+
+        for(j=0; j<board.moves.length; j++)
+        {
+            move = board.moves[j];
+            table.rows[move.y].cells[move.x].style.backgroundColor = "DarkRed";
+        }
+
+        //do last
+        if (board.seesplayer)
+        {
+            table.rows[board.posy].cells[board.posx].style.backgroundColor = "red";            
         }
 
         if (board.won)
